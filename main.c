@@ -1,23 +1,47 @@
 #include <stdio.h>
+#include <string.h>
 
-int accountNumber = 0;
-char accountHolder[50];
-float balance = 0.0;
+#define MAX_ACCOUNTS 100
 
-void createAccount() {
-    printf("\nEnter Account Number: ");
-    scanf("%d", &accountNumber);
+struct BankAccount {
+    int accNo;
+    char name[50];
+    float balance;
+};
 
-    printf("Enter Account Holder Name: ");
-    scanf(" %[^\n]", accountHolder);
+struct BankAccount accounts[MAX_ACCOUNTS];
+int totalAccounts = 0;
 
-    printf("Enter Initial Balance: ");
-    scanf("%f", &balance);
-
-    printf("\nAccount created successfully!\n");
+// Find account index
+int findAccount(int accNo) {
+    for (int i = 0; i < totalAccounts; i++) {
+        if (accounts[i].accNo == accNo) {
+            return i;
+        }
+    }
+    return -1;
 }
 
-void depositMoney() {
+void createAccount() {
+    if (totalAccounts >= MAX_ACCOUNTS) {
+        printf("\nAccount limit reached.\n");
+        return;
+    }
+
+    printf("\nEnter Account Number: ");
+    scanf("%d", &accounts[totalAccounts].accNo);
+
+    printf("Enter Account Holder Name: ");
+    scanf(" %[^\n]", accounts[totalAccounts].name);
+
+    printf("Enter Initial Balance: ");
+    scanf("%f", &accounts[totalAccounts].balance);
+
+    totalAccounts++;
+    printf("\nAccount created successfully.\n");
+}
+
+void depositMoney(int index) {
     float amount;
     printf("\nEnter amount to deposit: ");
     scanf("%f", &amount);
@@ -25,30 +49,80 @@ void depositMoney() {
     if (amount <= 0) {
         printf("Invalid amount.\n");
     } else {
-        balance += amount;
+        accounts[index].balance += amount;
         printf("Amount deposited successfully.\n");
     }
 }
 
-void withdrawMoney() {
+void withdrawMoney(int index) {
     float amount;
     printf("\nEnter amount to withdraw: ");
     scanf("%f", &amount);
 
     if (amount <= 0) {
         printf("Invalid amount.\n");
-    } else if (amount > balance) {
+    } else if (amount > accounts[index].balance) {
         printf("Insufficient balance.\n");
     } else {
-        balance -= amount;
+        accounts[index].balance -= amount;
         printf("Please collect your cash.\n");
     }
 }
 
-void checkBalance() {
-    printf("\nAccount Number: %d\n", accountNumber);
-    printf("Account Holder: %s\n", accountHolder);
-    printf("Current Balance: %.2f\n", balance);
+void checkBalance(int index) {
+    printf("\nAccount Number: %d\n", accounts[index].accNo);
+    printf("Account Holder: %s\n", accounts[index].name);
+    printf("Balance: %.2f\n", accounts[index].balance);
+}
+
+void accountMenu(int index) {
+    int choice;
+
+    do {
+        printf("\n----- ACCOUNT MENU -----\n");
+        printf("1. Deposit Money\n");
+        printf("2. Withdraw Money\n");
+        printf("3. Check Balance\n");
+        printf("4. Logout\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                depositMoney(index);
+                break;
+
+            case 2:
+                withdrawMoney(index);
+                break;
+
+            case 3:
+                checkBalance(index);
+                break;
+
+            case 4:
+                printf("\nLogged out successfully.\n");
+                break;
+
+            default:
+                printf("\nInvalid choice.\n");
+        }
+
+    } while (choice != 4);
+}
+
+void login() {
+    int accNo;
+    printf("\nEnter Account Number to Login: ");
+    scanf("%d", &accNo);
+
+    int index = findAccount(accNo);
+    if (index == -1) {
+        printf("Account not found.\n");
+    } else {
+        printf("\nWelcome, %s!\n", accounts[index].name);
+        accountMenu(index);
+    }
 }
 
 int main() {
@@ -57,10 +131,8 @@ int main() {
     do {
         printf("\n===== BANK MANAGEMENT SYSTEM =====\n");
         printf("1. Create Account\n");
-        printf("2. Deposit Money\n");
-        printf("3. Withdraw Money\n");
-        printf("4. Check Balance\n");
-        printf("5. Exit\n");
+        printf("2. Login\n");
+        printf("3. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
@@ -70,27 +142,10 @@ int main() {
                 break;
 
             case 2:
-                if (accountNumber == 0)
-                    printf("\nPlease create an account first.\n");
-                else
-                    depositMoney();
+                login();
                 break;
 
             case 3:
-                if (accountNumber == 0)
-                    printf("\nPlease create an account first.\n");
-                else
-                    withdrawMoney();
-                break;
-
-            case 4:
-                if (accountNumber == 0)
-                    printf("\nPlease create an account first.\n");
-                else
-                    checkBalance();
-                break;
-
-            case 5:
                 printf("\nThank you for using the bank system.\n");
                 break;
 
@@ -98,7 +153,7 @@ int main() {
                 printf("\nInvalid choice. Try again.\n");
         }
 
-    } while (choice != 5);
+    } while (choice != 3);
 
     return 0;
 }
