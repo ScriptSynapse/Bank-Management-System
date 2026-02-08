@@ -2,10 +2,12 @@
 #include <string.h>
 
 #define MAX_ACCOUNTS 100
+#define MAX_ATTEMPTS 3
 
 struct BankAccount {
     int accNo;
     char name[50];
+    int pin;
     float balance;
 };
 
@@ -33,6 +35,9 @@ void createAccount() {
 
     printf("Enter Account Holder Name: ");
     scanf(" %[^\n]", accounts[totalAccounts].name);
+
+    printf("Set 4-digit PIN: ");
+    scanf("%d", &accounts[totalAccounts].pin);
 
     printf("Enter Initial Balance: ");
     scanf("%f", &accounts[totalAccounts].balance);
@@ -112,17 +117,33 @@ void accountMenu(int index) {
 }
 
 void login() {
-    int accNo;
-    printf("\nEnter Account Number to Login: ");
+    int accNo, pin, attempts = 0;
+
+    printf("\nEnter Account Number: ");
     scanf("%d", &accNo);
 
     int index = findAccount(accNo);
     if (index == -1) {
         printf("Account not found.\n");
-    } else {
-        printf("\nWelcome, %s!\n", accounts[index].name);
-        accountMenu(index);
+        return;
     }
+
+    while (attempts < MAX_ATTEMPTS) {
+        printf("Enter PIN: ");
+        scanf("%d", &pin);
+
+        if (pin == accounts[index].pin) {
+            printf("\nLogin successful. Welcome, %s!\n", accounts[index].name);
+            accountMenu(index);
+            return;
+        } else {
+            attempts++;
+            printf("Incorrect PIN. Attempts left: %d\n",
+                   MAX_ATTEMPTS - attempts);
+        }
+    }
+
+    printf("\nAccount locked due to multiple incorrect PIN attempts.\n");
 }
 
 int main() {
