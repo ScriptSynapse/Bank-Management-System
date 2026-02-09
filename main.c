@@ -14,8 +14,6 @@ struct BankAccount {
 struct BankAccount accounts[MAX_ACCOUNTS];
 int totalAccounts = 0;
 
-/* ---------- Utility Functions ---------- */
-
 void clearInputBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
@@ -36,8 +34,6 @@ int readFloat(float *value) {
     }
     return 1;
 }
-
-/* ---------- Core Functions ---------- */
 
 int findAccount(int accNo) {
     for (int i = 0; i < totalAccounts; i++) {
@@ -195,8 +191,6 @@ void login() {
     accounts[index].locked = 1;
     printf("Account locked due to multiple incorrect attempts.\n");
 }
-
-/* ---------- Main ---------- */
 
 int main() {
     int choice;
